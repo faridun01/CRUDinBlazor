@@ -1,0 +1,65 @@
+﻿@page "/products/create"
+@using Microsoft.EntityFrameworkCore
+@inject IDbContextFactory<CRUDinBlazor.Data.CRUDinBlazorContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create Product</PageTitle>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg p-4">
+                <h2 class="text-center text-primary"><i class="bi bi-box-seam"></i> Add New Product</h2>
+                <hr />
+
+                <EditForm method="post" Model="Product" OnValidSubmit="AddProduct" FormName="create" Enhance>
+                    <DataAnnotationsValidator />
+                    <ValidationSummary class="alert alert-danger" />
+
+                    <!-- Name Input -->
+                    <div class="mb-3">
+                        <label for="name" class="form-label fw-semibold">Product Name:</label>
+                        <InputText id="name" @bind-Value="Product.Name" @bind-Value:event="oninput" class="form-control" placeholder="Enter product name" />
+                        <ValidationMessage For="() => Product.Name" class="text-danger small" />
+                    </div>
+
+                    <!-- Price Input -->
+                    <div class="mb-3">
+                        <label for="price" class="form-label fw-semibold">Price ($):</label>
+                        <InputNumber id="price" @bind-Value="Product.Price" @bind-Value:event="oninput" class="form-control" placeholder="Enter product price" />
+                        <ValidationMessage For="() => Product.Price" class="text-danger small" />
+                    </div>
+
+                    <!-- Quantity Input -->
+                    <div class="mb-3">
+                        <label for="quantity" class="form-label fw-semibold">Stock Quantity:</label>
+                        <InputNumber id="quantity" @bind-Value="Product.Quantity" @bind-Value:event="oninput" class="form-control" placeholder="Enter quantity available" />
+                        <ValidationMessage For="() => Product.Quantity" class="text-danger small" />
+                    </div>
+
+                    <!-- Submit & Back Buttons -->
+                    <div class="d-flex justify-content-between">
+                        <button type="submit" class="btn btn-success px-4">
+                            <i class="bi bi-check-circle"></i> Create Product
+                        </button>
+                        <a href="/products" class="btn btn-secondary px-4"><i class="bi bi-arrow-left"></i> Back to List</a>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private Product Product { get; set; } = new();
+
+    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task AddProduct()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Product.Add(Product);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/products");
+    }
+}

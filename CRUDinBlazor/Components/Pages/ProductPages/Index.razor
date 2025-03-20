@@ -1,0 +1,57 @@
+﻿@page "/products"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using CRUDinBlazor.Data
+@implements IAsyncDisposable
+@inject IDbContextFactory<CRUDinBlazor.Data.CRUDinBlazorContext> DbFactory
+
+<PageTitle>Products</PageTitle>
+
+<div class="container mt-5">
+    <div class="card shadow-lg p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold text-primary"><i class="bi bi-box-seam"></i> Product List</h2>
+            <a href="products/create" class="btn btn-primary btn-lg">
+                <i class="bi bi-plus-circle"></i> Add New Product
+            </a>
+        </div>
+
+        <div class="table-responsive">
+            <QuickGrid Class="custom-table" Items="context.Product">
+                <PropertyColumn Title="Product Name" Property="product => product.Name" />
+                <PropertyColumn Title="Price ($)" Property="product => product.Price" />
+                <PropertyColumn Title="Stock Quantity" Property="product => product.Quantity" />
+
+                <TemplateColumn Title="Actions" Context="product">
+                    <div class="d-flex gap-2">
+                        <a href="@($"products/edit?id={product.Id}")" class="btn btn-sm btn-warning">
+                            <i class="bi bi-pencil-square"></i> Edit
+                        </a>
+                        <a href="@($"products/details?id={product.Id}")" class="btn btn-sm btn-info">
+                            <i class="bi bi-eye"></i> Details
+                        </a>
+                        <a href="@($"products/delete?id={product.Id}")" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this product?');">
+                            <i class="bi bi-trash"></i> Delete
+                        </a>
+                    </div>
+                </TemplateColumn>
+            </QuickGrid>
+        </div>
+    </div>
+</div>
+
+
+<style>
+    
+</style>
+
+@code {
+    private CRUDinBlazorContext context = default!;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}
